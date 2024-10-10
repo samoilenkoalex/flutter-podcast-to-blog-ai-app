@@ -1,17 +1,35 @@
 import express from 'express';
+import multer from 'multer';
 import speechToTextService from '../services/speechToTextService.js';
 
-const router = express.Router();
+import summarizeService from '../services/summarizationService.js';
 
-// POST request to convert speech to text
-router.post('/convertSpeech', async (req, res) => {
+import textToAudioService from '../services/textToAudioService.js';
+const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
+
+router.post('/convertSpeech', upload.single('audio'), async (req, res) => {
     try {
-        const filePath = req.body.filePath; // Assuming filePath is passed in the request body
-        const result = await speechToTextService.convertSpeechToText(filePath);
-        console.log('convertSpeechToText result:', result); // Log the result
-        res.json(result);
+        const filePath = req.file ? req.file.path : req.body.filePath;
+        console.log('Received file path:', filePath);
+
+        const text = await speechToTextService.convertSpeechToText(filePath);
+        console.log('Speech to text result:', text);
+
+        const summary = await summarizeService.summarizeResult(text);
+        console.log('Summary result:', summary);
+
+        const audioBuffer = await textToAudioService.convertSummaryToAudio(
+            summary
+        );
+
+        // Send the audio data as a buffer
+        res.set('Content-Type', 'audio/mpeg');
+        res.send(audioBuffer);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error in /convertSpeech:', error);
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ error: error.message, stack: error.stack });
     }
 });
 

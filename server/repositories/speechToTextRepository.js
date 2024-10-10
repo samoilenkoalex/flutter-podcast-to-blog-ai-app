@@ -1,10 +1,6 @@
-import { HfInference } from '@huggingface/inference';
 import { readFileSync } from 'fs';
 import 'dotenv/config';
-export async function initHuggingFaceService() {
-    const hf = new HfInference(process.env.HF_KEY); // Use the Hugging Face API Key from env
-    return hf;
-}
+import { initHuggingFaceRepository } from './huggingFaceRepository.js';
 
 class SpeechToTextRepository {
     constructor() {
@@ -12,7 +8,7 @@ class SpeechToTextRepository {
     }
 
     async init() {
-        this.hf = await initHuggingFaceService();
+        this.hf = await initHuggingFaceRepository();
     }
 
     async performSpeechToText(filePath) {
@@ -21,7 +17,15 @@ class SpeechToTextRepository {
             model: 'facebook/wav2vec2-large-960h-lv60-self',
             data: audioData,
         });
-        return speechToTextResult;
+
+        // Check if the result is an object with a 'text' property
+        if (typeof speechToTextResult === 'object' && speechToTextResult.text) {
+            return speechToTextResult.text;
+        } else if (typeof speechToTextResult === 'string') {
+            return speechToTextResult;
+        } else {
+            throw new Error('Unexpected speech-to-text result format');
+        }
     }
 }
 
