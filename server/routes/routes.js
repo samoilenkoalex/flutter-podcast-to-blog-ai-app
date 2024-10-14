@@ -1,19 +1,30 @@
 import express from 'express';
 import multer from 'multer';
 import speechToTextService from '../services/speechToTextService.js';
-
 import summarizeService from '../services/summarizationService.js';
-
 import textToAudioService from '../services/textToAudioService.js';
+import podcastIndexService from '../services/podcastIndexService.js';
+
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 router.post('/convertSpeech', upload.single('audio'), async (req, res) => {
     try {
-        const filePath = req.file ? req.file.path : req.body.filePath;
-        console.log('Received file path:', filePath);
+        const podcast =
+            await podcastIndexService.performPodcastIndexEpisodesSearch(
+                '27211628824'
+            );
+        console.log('Podcast:', podcast.episode.enclosureUrl);
 
-        const text = await speechToTextService.convertSpeechToText(filePath);
+        const fileUrl = podcast.episode.enclosureUrl;
+        const localFilePath = await speechToTextService.downloadAudioToLocal(
+            fileUrl
+        );
+        console.log('File downloaded to:', localFilePath);
+
+        const text = await speechToTextService.convertSpeechToText(
+            localFilePath
+        );
         console.log('Speech to text result:', text);
 
         const summary = await summarizeService.summarizeResult(text);
