@@ -36,10 +36,16 @@ final goRouter = GoRouter(
     ),
     GoRoute(
       path: episodesRoute,
-      pageBuilder: (context, state) => _TransitionPage(
-        key: state.pageKey,
-        child: const EpisodeScreen(),
-      ),
+      pageBuilder: (context, state) {
+        final extra = state.extra! as Map<dynamic, dynamic>;
+
+        return _TransitionPage(
+          key: state.pageKey,
+          child: EpisodeScreen(
+            item: extra['item'],
+          ),
+        );
+      },
     ),
   ],
 );

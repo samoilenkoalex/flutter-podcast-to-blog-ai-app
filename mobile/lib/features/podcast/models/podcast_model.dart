@@ -226,6 +226,11 @@ class Item {
         "transcriptUrl": transcriptUrl,
         "value": value != null ? value!.toMap() : null,
       };
+
+  @override
+  String toString() {
+    return 'Item{id: $id, title: $title, link: $link, description: $description, guid: $guid, datePublished: $datePublished, datePublishedPretty: $datePublishedPretty, dateCrawled: $dateCrawled, enclosureUrl: $enclosureUrl, enclosureType: $enclosureType, enclosureLength: $enclosureLength, duration: $duration, explicit: $explicit, episode: $episode, episodeType: $episodeType, season: $season, image: $image, feedItunesId: $feedItunesId, feedImage: $feedImage, feedId: $feedId, feedLanguage: $feedLanguage, feedDead: $feedDead, feedDuplicateOf: $feedDuplicateOf, chaptersUrl: $chaptersUrl, transcriptUrl: $transcriptUrl, value: $value}';
+  }
 }
 
 enum EnclosureType { AUDIO_MPEG }

@@ -8,7 +8,7 @@ import '../../../common/router.dart';
 import '../bloc/podcast_bloc.dart';
 
 class PodcastEpisoddesList extends StatelessWidget {
-  const PodcastEpisoddesList({Key? key}) : super(key: key);
+  const PodcastEpisoddesList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class PodcastEpisoddesList extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: () {
-          context.push(episodesRoute);
+          context.push(episodesRoute, extra: {'item': state.podcasts.items![index]});
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
