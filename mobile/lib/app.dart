@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'common/router.dart';
-import 'features/podcast/screens/podcast_screen.dart';
-
 
 class Application extends StatelessWidget {
   const Application({super.key});
@@ -11,7 +9,7 @@ class Application extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Flutter Demo',
-        routerConfig: goRouter,
+      routerConfig: goRouter,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

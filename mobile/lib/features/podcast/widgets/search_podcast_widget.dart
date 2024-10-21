@@ -16,7 +16,11 @@ class SearchPodcastWidget extends StatefulWidget {
 class SearchPodcastWidgetState extends State<SearchPodcastWidget> {
   TextEditingController controller = TextEditingController();
 
-  final border = const OutlineInputBorder(borderRadius: BorderRadius.horizontal(left: Radius.circular(5)));
+  final border = const OutlineInputBorder(
+    borderRadius: BorderRadius.horizontal(
+      left: Radius.circular(5),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +48,12 @@ class SearchPodcastWidgetState extends State<SearchPodcastWidget> {
             ),
           ),
           Container(
-            decoration: BoxDecoration(color: Colors.blue[800], borderRadius: const BorderRadius.only(topRight: Radius.circular(10))),
+            decoration: BoxDecoration(
+              color: Colors.blue[800],
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(10),
+              ),
+            ),
             child: IconButton(
                 icon: const Icon(
                   Icons.search,
