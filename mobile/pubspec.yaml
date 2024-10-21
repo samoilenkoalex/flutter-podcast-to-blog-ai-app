@@ -13,11 +13,6 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^4.0.0
   http: ^1.2.2
   get_it: ^8.0.0
   flutter_bloc: ^8.1.6
@@ -25,6 +20,12 @@ dev_dependencies:
   podcast_search: ^0.7.3
   go_router: ^14.3.0
   audioplayers: ^6.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
 
 
 flutter:
