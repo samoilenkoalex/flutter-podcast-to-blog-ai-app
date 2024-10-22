@@ -15,7 +15,7 @@ class ApiService {
   }) async {
     dynamic result = [];
     final response = await http.post(
-      Uri.parse('$baseUrl/getEpisodes'),
+      Uri.parse('$baseUrl/episodes'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -37,7 +37,7 @@ class ApiService {
   }) async {
     dynamic result = [];
     final response = await http.post(
-      Uri.parse('$baseUrl/episodeSummarize'),
+      Uri.parse('$baseUrl/episode_summary'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -59,7 +59,7 @@ class ApiService {
   }) async {
     dynamic result = [];
     final response = await http.post(
-      Uri.parse('$baseUrl/episodeSpeechToText'),
+      Uri.parse('$baseUrl/episode_speech_to_text'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -78,7 +78,7 @@ class ApiService {
 
   Future<List<int>> getAudio({required String summary}) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/summarizedAudio'),
+      Uri.parse('$baseUrl/audio_summary'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
