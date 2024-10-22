@@ -2,7 +2,7 @@ part of 'summarize_bloc.dart';
 
 sealed class SummarizeState extends Equatable {}
 
- class SummarizeInitial extends SummarizeState {
+class SummarizeInitial extends SummarizeState {
   @override
   List<Object> get props => [];
 }
@@ -19,6 +19,16 @@ class SummarizeLoaded extends SummarizeState {
 
   @override
   List<Object> get props => [summary];
+}
+
+class AudioLoaded extends SummarizeState {
+  final String audioPath;
+  final String summary;
+
+  AudioLoaded({required this.audioPath, required this.summary});
+
+  @override
+  List<Object> get props => [audioPath];
 }
 
 class SummarizeError extends SummarizeState {

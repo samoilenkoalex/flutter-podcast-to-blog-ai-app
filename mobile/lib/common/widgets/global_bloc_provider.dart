@@ -24,9 +24,6 @@ class GlobalBlocProvider extends StatelessWidget {
         BlocProvider(
           create: (context) => SummarizeBloc(),
         ),
-        BlocProvider(
-          create: (context) => SpeechToTextBloc(),
-        ),
       ],
       child: child,
     );
