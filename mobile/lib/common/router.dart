@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:podcast_index_app/features/episodes/screens/episode_screen.dart';
 
+import '../features/episodes/bloc/speech_to_text/speech_to_text_bloc.dart';
+import '../features/episodes/bloc/summarize/summarize_bloc.dart';
 import '../features/podcast/screens/podcast_screen.dart';
 
 /* * * * * * * * * * * *
@@ -36,16 +39,24 @@ final goRouter = GoRouter(
     ),
     GoRoute(
       path: episodesRoute,
-      pageBuilder: (context, state) {
+      builder: (context, state) {
         final extra = state.extra! as Map<dynamic, dynamic>;
 
-        return _TransitionPage(
-          key: state.pageKey,
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => SummarizeBloc(),
+            ),
+            BlocProvider(
+              create: (context) => SpeechToTextBloc(),
+            ),
+          ],
           child: EpisodeScreen(
             item: extra['item'],
           ),
         );
       },
+
     ),
   ],
 );
