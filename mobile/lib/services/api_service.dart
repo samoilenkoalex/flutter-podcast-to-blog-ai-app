@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
+import '../features/episodes/models/translation.dart';
 import '../features/podcast/models/podcast_model.dart';
 
 const String baseUrl = 'http://localhost:3000/api';
@@ -108,5 +110,60 @@ class ApiService {
     await file.writeAsBytes(data);
     log('Raw response saved to: ${file.path}');
     return file.path;
+  }
+
+  Future<String> getTranslation({
+    required String text,
+  }) async {
+    dynamic result = [];
+    final response = await http.post(
+      Uri.parse('$baseUrl/summary_translation'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'text': text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+
+      result = TranslationResponse.fromJson(jsonResponse);
+    } else {
+      result = 'Failed to fetch summary';
+    }
+    return result.translationText;
+  }
+
+  Future<Uint8List> getImage({
+    required String text,
+  }) async {
+    dynamic result;
+    final response = await http.post(
+      Uri.parse('$baseUrl/image'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'text': text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      final base64String = jsonResponse['image'];
+
+      if (jsonResponse['image'] != null) {
+        Uint8List bytes = base64Decode(base64String);
+
+        result = bytes;
+      } else {
+        result = 'Failed to fetch image';
+      }
+    } else {
+      result = 'Failed to fetch image';
+    }
+    return result;
   }
 }
