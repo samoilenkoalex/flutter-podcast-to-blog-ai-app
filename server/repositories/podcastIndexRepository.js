@@ -9,15 +9,17 @@ class PodcastIndexRepository {
         this.podcastIndexClient = await initPodcastIndexClient();
     }
 
-    async performPodcastSearch() {
+    async performPodcastSearch({ searchTerm, limit, offset }) {
         if (!this.podcastIndexClient) {
             throw new Error(
                 'PodcastIndexClient is not initialized. Call init() first.'
             );
         }
 
+        console.log('searchTerm>>:', searchTerm);
         const result = await this.podcastIndexClient.episodesByItunesId(
-            '1751735078'
+            searchTerm,
+            { max: 10 }
         );
         return result;
     }
