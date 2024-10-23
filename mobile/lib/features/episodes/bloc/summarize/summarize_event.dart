@@ -12,3 +12,4 @@ class FetchSummary extends SummarizeEvent {
   @override
   List<Object> get props => [id];
 }
+
