@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../podcast/models/podcast_model.dart';
 import '../bloc/summarize/summarize_bloc.dart';
+import '../bloc/translation/translate_bloc.dart';
 import 'audio_player_widget.dart';
 
 class MoreWidget extends StatefulWidget {
@@ -20,6 +23,7 @@ class MoreWidget extends StatefulWidget {
 
 class MoreWidgetState extends State<MoreWidget> {
   late AudioPlayer player = AudioPlayer();
+  bool isTranslateEnabled = false;
 
   @override
   void initState() {
@@ -66,8 +70,8 @@ class MoreWidgetState extends State<MoreWidget> {
           ),
           BlocConsumer<SummarizeBloc, SummarizeState>(
             listener: (context, state) {
-              if (state is AudioLoaded && state.audioPath != null) {
-                player.setSource(DeviceFileSource(state.audioPath!));
+              if (state is AudioLoaded && state.audioPath.isNotEmpty) {
+                player.setSource(DeviceFileSource(state.audioPath));
               }
             },
             builder: (context, state) {
@@ -82,8 +86,35 @@ class MoreWidgetState extends State<MoreWidget> {
                 }
                 return Column(
                   children: [
-                    Text(summary),
                     if (state is AudioLoaded) PlayerWidget(player: player),
+                    Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: BlocBuilder<TranslateBloc, TranslateState>(
+                          builder: (context, translationState) {
+                            log('translationState: $translationState');
+                            if (translationState is TranslateLoading) {
+                              return const CircularProgressIndicator();
+                            } else if (translationState is TranslateLoaded && isTranslateEnabled) {
+                              return Text(translationState.text);
+                            } else if (translationState is TranslateError) {
+                              return Text('Error: ${translationState.message}');
+                            } else {
+                              return Text(summary);
+                            }
+                          },
+                        )),
+                    FilledButton(
+                      onPressed: () {
+                        setState(() {
+                          isTranslateEnabled = !isTranslateEnabled;
+                        });
+
+                        if (!isTranslateEnabled) {
+                          context.read<TranslateBloc>().add(FetchTranslation(text: summary));
+                        }
+                      },
+                      child: const Text('Translate to French'),
+                    ),
                   ],
                 );
               } else if (state is SummarizeError) {
