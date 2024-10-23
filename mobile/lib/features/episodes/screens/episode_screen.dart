@@ -1,9 +1,11 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:podcast_index_app/features/episodes/widgets/more_widget.dart';
 
 import '../../podcast/models/podcast_model.dart';
+import '../bloc/image/image_bloc.dart';
 import '../widgets/main_content_widget.dart';
 
 class EpisodeScreen extends StatefulWidget {
@@ -24,10 +26,13 @@ class _EpisodeScreenState extends State<EpisodeScreen> with SingleTickerProvider
 
   @override
   void initState() {
+    context.read<ImageBloc>().add(FetchImage(widget.item.description.toString()));
+
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       setState(() {});
     });
+
     super.initState();
   }
 
