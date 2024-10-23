@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:podcast_index_app/features/episodes/screens/episode_screen.dart';
 
+import '../features/episodes/bloc/image/image_bloc.dart';
 import '../features/episodes/bloc/speech_to_text/speech_to_text_bloc.dart';
 import '../features/episodes/bloc/summarize/summarize_bloc.dart';
+import '../features/episodes/bloc/translation/translate_bloc.dart';
 import '../features/podcast/screens/podcast_screen.dart';
 
 /* * * * * * * * * * * *
@@ -50,13 +52,18 @@ final goRouter = GoRouter(
             BlocProvider(
               create: (context) => SpeechToTextBloc(),
             ),
+            BlocProvider(
+              create: (context) => TranslateBloc(),
+            ),
+            BlocProvider(
+              create: (context) => ImageBloc(),
+            ),
           ],
           child: EpisodeScreen(
             item: extra['item'],
           ),
         );
       },
-
     ),
   ],
 );
@@ -64,6 +71,15 @@ final goRouter = GoRouter(
 class _TransitionPage extends CustomTransitionPage<dynamic> {
   _TransitionPage({super.key, required super.child})
       : super(
-          transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+          transitionsBuilder: (
+            context,
+            animation,
+            secondaryAnimation,
+            child,
+          ) =>
+              FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
         );
 }
