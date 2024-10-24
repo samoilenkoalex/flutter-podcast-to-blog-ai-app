@@ -33,7 +33,7 @@ class MainContentWidgetState extends State<MainContentWidget> {
 
     // Start the player as soon as the app is displayed.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // await player.setSource(UrlSource(widget.item.enclosureUrl ?? ''));
+      await player.setSource(UrlSource(widget.item.enclosureUrl ?? ''));
       await player.stop();
     });
     super.initState();
@@ -62,14 +62,9 @@ class MainContentWidgetState extends State<MainContentWidget> {
   Column _buildTextSection(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FilledButton(
-            onPressed: () {
-              context.read<SpeechToTextBloc>().add(FetchSpeechToText(id: widget.item.id.toString()));
-            },
-            child: const Text('Show text Version'),
-          ),
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text('Text Version of Podcast'),
         ),
         BlocBuilder<SpeechToTextBloc, SpeechToTextState>(
           builder: (context, state) {

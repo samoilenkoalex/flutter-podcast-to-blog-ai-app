@@ -105,13 +105,13 @@ class MoreWidgetState extends State<MoreWidget> {
                         )),
                     FilledButton(
                       onPressed: () {
+                        if (isTranslateEnabled == false) {
+                          context.read<TranslateBloc>().add(FetchTranslation(text: summary));
+                        }
+
                         setState(() {
                           isTranslateEnabled = !isTranslateEnabled;
                         });
-
-                        if (!isTranslateEnabled) {
-                          context.read<TranslateBloc>().add(FetchTranslation(text: summary));
-                        }
                       },
                       child: const Text('Translate to French'),
                     ),

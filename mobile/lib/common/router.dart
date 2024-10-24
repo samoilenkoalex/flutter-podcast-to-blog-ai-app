@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:podcast_index_app/features/episodes/screens/episode_screen.dart';
 
+import '../features/episodes/bloc/chat/chat_bloc.dart';
 import '../features/episodes/bloc/image/image_bloc.dart';
 import '../features/episodes/bloc/speech_to_text/speech_to_text_bloc.dart';
 import '../features/episodes/bloc/summarize/summarize_bloc.dart';
@@ -57,6 +58,9 @@ final goRouter = GoRouter(
             ),
             BlocProvider(
               create: (context) => ImageBloc(),
+            ),
+            BlocProvider(
+              create: (context) => ChatBloc(),
             ),
           ],
           child: EpisodeScreen(
