@@ -20,7 +20,7 @@ class SummarizerRepository {
             model: 'facebook/bart-large-cnn',
             inputs: text,
             parameters: {
-                max_length: 15,
+                max_length: 100,
                 min_length: 10,
             },
         });

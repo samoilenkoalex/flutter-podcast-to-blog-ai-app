@@ -34,7 +34,7 @@ class SpeechToTextRepository {
 
     async transcribeChunk(audioChunk) {
         const speechToTextResult = await this.hf.automaticSpeechRecognition({
-            model: 'facebook/wav2vec2-large-960h-lv60-self',
+            model: 'openai/whisper-large-v3-turbo',
             data: audioChunk,
         });
 

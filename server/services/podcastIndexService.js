@@ -4,9 +4,13 @@ class PodcastIndexService {
         this.repository = podcastIndexRepository;
     }
 
-    async performPodcastIndexSearch() {
+    async performPodcastIndexSearch({ searchTerm, limit, offset }) {
         await this.repository.init();
-        const searchResult = await this.repository.performPodcastSearch();
+        const searchResult = await this.repository.performPodcastSearch({
+            searchTerm,
+            limit,
+            offset,
+        });
 
         return searchResult;
     }
