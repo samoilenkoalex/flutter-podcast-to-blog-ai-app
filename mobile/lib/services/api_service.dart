@@ -166,4 +166,29 @@ class ApiService {
     }
     return result;
   }
+
+  Future<String> startChat({required String message, required String context}) async {
+    dynamic result;
+    final response = await http.post(
+      Uri.parse('http://localhost:3000/api/chat'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'messages': [
+          {
+            "role": "system",
+            "content": "You are a friendly chatbot answering questions about this subject: $context",
+          },
+          {'role': 'user', 'content': message}
+        ],
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      result = jsonResponse['response'].toString();
+    } else {
+      result = 'Failed to fetch image';
+    }
+    return result;
+  }
 }
