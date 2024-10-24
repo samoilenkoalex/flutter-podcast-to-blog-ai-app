@@ -91,7 +91,7 @@ class ChatScreenState extends State<ChatScreen> {
                     if (message.isNotEmpty) {
                       context.read<ChatBloc>().add(SendMessageEvent(
                             message: message,
-                            context: '',
+                            context: speechToText ?? '',
                           ));
                       _controller.clear();
                     }
