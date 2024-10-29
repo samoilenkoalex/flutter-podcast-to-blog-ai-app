@@ -1,8 +1,18 @@
 import { ElevenLabsClient } from 'elevenlabs';
 
-export async function initElevenlabsRepository() {
-    const client = new ElevenLabsClient({
-        apiKey: process.env.ELEVANLABS_KEY,
-    });
-    return client;
+export class ElevenLabsRepository {
+    constructor(apiKey) {
+        this.client = new ElevenLabsClient({
+            // apiKey: apiKey,
+            apiKey: process.env.ELEVANLABS_KEY,
+        });
+    }
+
+    getClient() {
+        return this.client;
+    }
+}
+
+export function initElevenLabsRepository(apiKey) {
+    return new ElevenLabsRepository(apiKey);
 }

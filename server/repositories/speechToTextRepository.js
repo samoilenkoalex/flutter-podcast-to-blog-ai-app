@@ -1,25 +1,50 @@
 import axios from 'axios';
 import 'dotenv/config';
-import { initHuggingFaceRepository } from './huggingFaceRepository.js';
+import { HuggingFaceRepository } from './huggingFaceRepository.js';
 import fs from 'fs';
 import path from 'path';
 
-class SpeechToTextRepository {
-    constructor() {
-        this.hf = null;
+export class SpeechToTextRepository {
+    constructor(huggingFaceRepository) {
+        if (!(huggingFaceRepository instanceof HuggingFaceRepository)) {
+            throw new Error('Invalid HuggingFaceRepository instance');
+        }
+        this.hfClient = null;
+        this.huggingFaceRepository = huggingFaceRepository;
+        this.isInitialized = false;
     }
 
     async init() {
-        this.hf = await initHuggingFaceRepository();
+        if (this.isInitialized) {
+            console.warn('SpeechToTextRepository is already initialized');
+            return;
+        }
+
+        try {
+            this.hfClient = this.huggingFaceRepository.getClient();
+            this.isInitialized = true;
+            console.log('SpeechToTextRepository initialized successfully');
+        } catch (error) {
+            console.error(
+                'Failed to initialize Hugging Face repository:',
+                error
+            );
+            throw new Error('Initialization error: ' + error.message);
+        }
     }
 
     async fetchAudioData(fileUrl) {
-        const response = await axios({
-            url: fileUrl,
-            method: 'GET',
-            responseType: 'arraybuffer',
-        });
-        return response.data;
+        try {
+            const response = await axios({
+                url: fileUrl,
+                method: 'GET',
+                responseType: 'arraybuffer',
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching audio data:', error);
+            throw new Error('Failed to fetch audio data: ' + error.message);
+        }
     }
 
     async readFileChunk(filePath, start, end) {
@@ -33,59 +58,110 @@ class SpeechToTextRepository {
     }
 
     async transcribeChunk(audioChunk) {
-        const speechToTextResult = await this.hf.automaticSpeechRecognition({
-            model: 'openai/whisper-large-v3-turbo',
-            data: audioChunk,
-        });
+        if (!this.isInitialized) {
+            throw new Error(
+                'SpeechToTextRepository is not initialized. Call init() first.'
+            );
+        }
 
-        if (typeof speechToTextResult === 'object' && speechToTextResult.text) {
-            return speechToTextResult.text;
-        } else if (typeof speechToTextResult === 'string') {
-            return speechToTextResult;
-        } else {
-            throw new Error('Unexpected speech-to-text result format');
+        try {
+            const speechToTextResult =
+                await this.hfClient.automaticSpeechRecognition({
+                    model: 'openai/whisper-large-v3-turbo',
+                    data: audioChunk,
+                });
+
+            if (
+                typeof speechToTextResult === 'object' &&
+                speechToTextResult.text
+            ) {
+                return speechToTextResult.text;
+            } else if (typeof speechToTextResult === 'string') {
+                return speechToTextResult;
+            } else {
+                throw new Error('Unexpected speech-to-text result format');
+            }
+        } catch (error) {
+            console.error('Error transcribing chunk:', error);
+            throw new Error('Transcription failed: ' + error.message);
         }
     }
 
     async performSpeechToText(filePath, chunkSize = 1 * 1024 * 1024) {
-        // 1MB chunks by default
-        console.log('filePath:', filePath);
-        const fileSize = fs.statSync(filePath).size;
-        const chunks = Math.ceil(fileSize / chunkSize);
-        let fullTranscription = '';
-
-        for (let i = 0; i < chunks; i++) {
-            const start = i * chunkSize;
-            const end = Math.min((i + 1) * chunkSize - 1, fileSize - 1);
-
-            const audioChunk = await this.readFileChunk(filePath, start, end);
-
-            const chunkTranscription = await this.transcribeChunk(audioChunk);
-
-            fullTranscription += chunkTranscription + ' ';
+        if (!this.isInitialized) {
+            throw new Error(
+                'SpeechToTextRepository is not initialized. Call init() first.'
+            );
         }
 
-        return fullTranscription.trim();
+        try {
+            console.log('filePath:', filePath);
+            const fileSize = fs.statSync(filePath).size;
+            const chunks = Math.ceil(fileSize / chunkSize);
+            let fullTranscription = '';
+
+            for (let i = 0; i < chunks; i++) {
+                const start = i * chunkSize;
+                const end = Math.min((i + 1) * chunkSize - 1, fileSize - 1);
+
+                const audioChunk = await this.readFileChunk(
+                    filePath,
+                    start,
+                    end
+                );
+                const chunkTranscription = await this.transcribeChunk(
+                    audioChunk
+                );
+                fullTranscription += chunkTranscription + ' ';
+            }
+
+            return fullTranscription.trim();
+        } catch (error) {
+            console.error('Error in performSpeechToText:', error);
+            throw new Error(
+                'Speech to text conversion failed: ' + error.message
+            );
+        }
     }
 
     async performDownloadFile(url) {
-        const localFilePath = path.resolve('./uploads', 'podcast_episode.mp3');
+        try {
+            const localFilePath = path.resolve(
+                './uploads',
+                'podcast_episode.mp3'
+            );
+            const writer = fs.createWriteStream(localFilePath);
+            const response = await axios({
+                url,
+                method: 'GET',
+                responseType: 'stream',
+            });
 
-        const writer = fs.createWriteStream(localFilePath);
-        const response = await axios({
-            url,
-            method: 'GET',
-            responseType: 'stream',
-        });
+            response.data.pipe(writer);
 
-        // Pipe the response data to the write stream
-        response.data.pipe(writer);
+            return new Promise((resolve, reject) => {
+                writer.on('finish', () => resolve(localFilePath));
+                writer.on('error', reject);
+            });
+        } catch (error) {
+            console.error('Error downloading file:', error);
+            throw new Error('File download failed: ' + error.message);
+        }
+    }
 
-        return new Promise((resolve, reject) => {
-            writer.on('finish', () => resolve(localFilePath));
-            writer.on('error', reject);
-        });
+    isReady() {
+        return this.isInitialized;
+    }
+
+    reset() {
+        this.hfClient = null;
+        this.isInitialized = false;
+        console.log('SpeechToTextRepository reset');
     }
 }
 
-export default new SpeechToTextRepository();
+// Create and export a default instance
+const defaultHuggingFaceRepository = new HuggingFaceRepository(
+    process.env.HF_KEY || ''
+);
+export default new SpeechToTextRepository(defaultHuggingFaceRepository);

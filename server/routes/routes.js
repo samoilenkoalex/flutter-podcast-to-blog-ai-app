@@ -1,33 +1,68 @@
 import express from 'express';
 import multer from 'multer';
-import speechToTextService from '../services/speechToTextService.js';
-import summarizeService from '../services/summarizationService.js';
-import textToAudioService from '../services/textToAudioService.js';
-import podcastIndexService from '../services/podcastIndexService.js';
-import translationService from '../services/translationService.js';
 
-import imageService from '../services/imageService.js';
-import chatService from '../services/chatService.js';
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
-router.post('/convertSpeech', upload.single('audio'), async (req, res) => {
+import { ImageRepository } from '../repositories/imageRepository.js';
+
+import { SummarizerRepository } from '../repositories/summarizerRepository.js';
+
+import { ChatRepository } from '../repositories/chatRepository.js';
+import speechToTextRepository, {
+    SpeechToTextRepository,
+} from '../repositories/speechToTextRepository.js';
+
+import textToudioRepository from '../repositories/textToAudioRepository.js';
+import { TextToAudioRepository } from '../repositories/textToAudioRepository.js';
+import { PodcastIndexRepository } from '../repositories/podcastIndexRepository.js';
+import repositoryManager from '../repositories/repositoryManager.js';
+import translationService from '../services/translationService.js';
+import translationRepository from '../repositories/translationRepository.js';
+
+router.post('/image', async (req, res) => {
+    const imageRepository = new ImageRepository(
+        repositoryManager.getHuggingFaceRepository()
+    );
     try {
-        const podcast = await podcastIndexService.performPodcastIndexSearch();
-        console.log('Podcast:', podcast);
+        const { text } = req.body;
+        await imageRepository.init();
+        console.log('text>>:', text);
+        const image = await imageRepository.performTextToImage(text);
+        console.log('image route response:', image);
+
+        res.json({ image: image });
     } catch (error) {
-        console.error('Error in /convertSpeech:', error);
+        console.error('Error in /image:', error);
         console.error('Error stack:', error.stack);
         res.status(500).json({ error: error.message, stack: error.stack });
     }
 });
-router.post('/episodes', async (req, res) => {
+
+router.post('/convert_speech', upload.single('audio'), async (req, res) => {
+    const speechToTextRepository = new SpeechToTextRepository(
+        repositoryManager.getHuggingFaceRepository()
+    );
     try {
-        // Access query parameters from req.query
+        await speechToTextRepository.init();
+
+        const filePath = req.file.path;
+        const text = await speechToTextRepository.performSpeechToText(filePath);
+        res.json({ text });
+    } catch (error) {
+        console.error('Error in /convertSpeech:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/episodes', async (req, res) => {
+    const podcastIndexRepository = new PodcastIndexRepository(
+        repositoryManager.getPodcastIndexRepository()
+    );
+    try {
         const { searchTerm, limit, offset } = req.body;
 
-        // Pass query parameters to the performPodcastIndexSearch method
-        const podcast = await podcastIndexService.performPodcastIndexSearch({
+        const podcast = await podcastIndexRepository.performPodcastSearch({
             searchTerm,
             limit,
             offset,
@@ -41,27 +76,40 @@ router.post('/episodes', async (req, res) => {
         res.status(500).json({ error: error.message, stack: error.stack });
     }
 });
-
 router.post('/episode_summary', async (req, res) => {
+    const speechToTextRepository = new SpeechToTextRepository(
+        repositoryManager.getHuggingFaceRepository()
+    );
+    const summaryRepository = new SummarizerRepository(
+        repositoryManager.getHuggingFaceRepository()
+    );
+    const podcastIndexRepository = new PodcastIndexRepository(
+        repositoryManager.getPodcastIndexRepository()
+    );
     try {
-        const { searchTerm, limit, offset } = req.body;
-
+        const { searchTerm } = req.body;
+        if (!speechToTextRepository.isReady()) {
+            await speechToTextRepository.init();
+        }
         console.log('episode_summary>>:', searchTerm);
-        const podcast =
-            await podcastIndexService.performPodcastIndexEpisodesSearch(
-                searchTerm
-            );
+        const podcast = await podcastIndexRepository.performEpisodesByIdSearch(
+            searchTerm
+        );
         console.log('Podcast:', podcast.episode.enclosureUrl);
+
         const fileUrl = podcast.episode.enclosureUrl;
-        const localFilePath = await speechToTextService.downloadAudioToLocal(
+        const localFilePath = await speechToTextRepository.performDownloadFile(
             fileUrl
         );
         console.log('File downloaded to:', localFilePath);
-        const text = await speechToTextService.convertSpeechToText(
+
+        const text = await speechToTextRepository.performSpeechToText(
             localFilePath
         );
         console.log('Speech to text result:', text);
-        const summary = await summarizeService.summarizeResult(text);
+
+        await summaryRepository.init();
+        const summary = await summaryRepository.performSummarization(text);
 
         res.json(summary);
     } catch (error) {
@@ -72,21 +120,28 @@ router.post('/episode_summary', async (req, res) => {
 });
 
 router.post('/episode_speech_to_text', async (req, res) => {
+    const speechToTextRepository = new SpeechToTextRepository(
+        repositoryManager.getHuggingFaceRepository()
+    );
+    const podcastIndexRepository = new PodcastIndexRepository(
+        repositoryManager.getPodcastIndexRepository()
+    );
     try {
+        await speechToTextRepository.init();
+
         const { searchTerm, limit, offset } = req.body;
 
         console.log('episodeSummarize>>:', searchTerm);
-        const podcast =
-            await podcastIndexService.performPodcastIndexEpisodesSearch(
-                searchTerm
-            );
+        const podcast = await podcastIndexRepository.performEpisodesByIdSearch(
+            searchTerm
+        );
         console.log('Podcast:', podcast.episode.enclosureUrl);
         const fileUrl = podcast.episode.enclosureUrl;
-        const localFilePath = await speechToTextService.downloadAudioToLocal(
+        const localFilePath = await speechToTextRepository.performDownloadFile(
             fileUrl
         );
         console.log('File downloaded to:', localFilePath);
-        const text = await speechToTextService.convertSpeechToText(
+        const text = await speechToTextRepository.performSpeechToText(
             localFilePath
         );
         console.log('Speech to text result:', text);
@@ -100,9 +155,15 @@ router.post('/episode_speech_to_text', async (req, res) => {
 });
 
 router.post('/audio_summary', async (req, res) => {
+    // const hfRepository = new ElevenLabsRepository(
+    //     process.env.ELEVANLABS_KEY || ''
+    // );
+    const textToAudioRepository = new TextToAudioRepository(
+        repositoryManager.getElevenLabsRepository()
+    );
     try {
         const { summaryText } = req.body;
-        const audioBuffer = await textToAudioService.convertSummaryToAudio(
+        const audioBuffer = await textToAudioRepository.performTextToAudio(
             summaryText
         );
         res.set('Content-Type', 'audio/mpeg');
@@ -112,40 +173,37 @@ router.post('/audio_summary', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
 router.post('/summary_translation', async (req, res) => {
     try {
         const { text } = req.body;
 
-        console.log('text>>:', text);
-        const translation = await translationService.translateText(text);
-        console.log('translation:', translation);
+        if (typeof text !== 'string' || text.trim().length === 0) {
+            return res.status(400).json({
+                error: 'Invalid input: text must be a non-empty string',
+            });
+        }
+
+        console.log('Text to translate:', text);
+
+        // Initialize the repository if it hasn't been initialized yet
+        await translationRepository.init();
+
+        const translation = await translationRepository.performTranslation(
+            text
+        );
+        console.log('Translation result:', translation);
 
         res.json(translation);
     } catch (error) {
-        console.error('Error in /translation:', error);
-        console.error('Error stack:', error.stack);
-        res.status(500).json({ error: error.message, stack: error.stack });
-    }
-});
-
-router.post('/image', async (req, res) => {
-    try {
-        const { text } = req.body;
-
-        console.log('text>>:', text);
-        const image = await imageService.createImage(text);
-        console.log('image route response:', image);
-
-        res.json({ image: image });
-    } catch (error) {
-        console.error('Error in /image:', error);
-        console.error('Error stack:', error.stack);
-        res.status(500).json({ error: error.message, stack: error.stack });
+        console.error('Error in /summary_translation:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
 router.post('/chat', async (req, res) => {
+    const chatRepository = new ChatRepository(
+        repositoryManager.getHuggingFaceRepository()
+    );
     try {
         const { messages } = req.body;
 
@@ -157,7 +215,7 @@ router.post('/chat', async (req, res) => {
 
         console.log('messages>>:', messages);
 
-        const response = await chatService.useChat(messages);
+        const response = await chatRepository.performChat(messages);
         console.log('chat route response:', response);
 
         res.json({ response });

@@ -1,39 +1,48 @@
-import { initPodcastIndexClient } from '../clients/podcastIndexClient.js';
+import PodcastIndexClient from 'podcastdx-client';
 
-class PodcastIndexRepository {
-    constructor() {
-        this.podcastIndexClient = null;
+export class PodcastIndexRepository {
+    constructor({ apiKey, apiSecret }) {
+        this.apiKey = apiKey;
+        this.apiSecret = apiSecret;
+        this.client = null;
+        this.initClient();
     }
 
-    async init() {
-        this.podcastIndexClient = await initPodcastIndexClient();
+    initClient() {
+        if (!this.apiKey || !this.apiSecret) {
+            console.error('Podcast Index API key or secret is missing');
+            return false;
+        }
+
+        try {
+            this.client = new PodcastIndexClient({
+                key: this.apiKey,
+                secret: this.apiSecret,
+                disableAnalytics: true,
+            });
+            return true;
+        } catch (error) {
+            console.error('Failed to initialize Podcast Index client:', error);
+            return false;
+        }
     }
 
     async performPodcastSearch({ searchTerm, limit, offset }) {
-        if (!this.podcastIndexClient) {
-            throw new Error(
-                'PodcastIndexClient is not initialized. Call init() first.'
-            );
+        if (!this.client) {
+            throw new Error('Podcast Index client is not initialized');
         }
-
         console.log('searchTerm>>:', searchTerm);
-        const result = await this.podcastIndexClient.episodesByItunesId(
-            searchTerm,
-            { max: 10 }
-        );
+        const result = await this.client.episodesByItunesId(searchTerm, {
+            max: 10,
+        });
         return result;
     }
 
-    async performEpisodesByIdSearch() {
-        if (!this.podcastIndexClient) {
-            throw new Error(
-                'PodcastIndexClient is not initialized. Call init() first.'
-            );
+    async performEpisodesByIdSearch(searchId) {
+        if (!this.client) {
+            throw new Error('Podcast Index client is not initialized');
         }
-
-        const result = await this.podcastIndexClient.episodeById('27211628824');
+        const result = await this.client.episodeById(searchId);
         return result;
     }
 }
-
-export default new PodcastIndexRepository();

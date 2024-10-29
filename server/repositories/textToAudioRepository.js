@@ -1,14 +1,13 @@
 import 'dotenv/config';
-import { initElevenlabsRepository } from './elevenLabsRepository.js';
+import { ElevenLabsRepository } from './elevenLabsRepository.js';
 import { ElevenLabs } from 'elevenlabs';
 
-class TextToAudioRepository {
-    constructor() {
-        this.elevenLabsClient = null;
-    }
-
-    async init() {
-        this.elevenLabsClient = await initElevenlabsRepository();
+export class TextToAudioRepository {
+    constructor(elevenLabsRepository) {
+        if (!(elevenLabsRepository instanceof ElevenLabsRepository)) {
+            throw new Error('Invalid ElevenLabs repository instance');
+        }
+        this.elevenLabsClient = elevenLabsRepository.getClient();
     }
 
     async performTextToAudio(text) {
@@ -41,4 +40,11 @@ class TextToAudioRepository {
     }
 }
 
-export default new TextToAudioRepository();
+// Create and export a default instance
+const defaultElevenLabsRepository = new ElevenLabsRepository(
+    process.env.ELEVANLABS_KEY
+);
+// export const textToAudioRepository = new TextToAudioRepository(
+//     defaultElevenLabsRepository
+// );
+export default new TextToAudioRepository(defaultElevenLabsRepository);

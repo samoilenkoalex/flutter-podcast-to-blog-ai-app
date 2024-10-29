@@ -1,40 +1,99 @@
 import 'dotenv/config';
-import { initHuggingFaceRepository } from './huggingFaceRepository.js';
-
-class ImageRepository {
-    constructor() {
-        this.hf = null;
+import { HuggingFaceRepository } from './huggingFaceRepository.js';
+export class ImageRepository {
+    constructor(huggingFaceRepository) {
+        if (!(huggingFaceRepository instanceof HuggingFaceRepository)) {
+            throw new Error('Invalid HuggingFaceRepository instance');
+        }
+        this.hfClient = null;
+        this.huggingFaceRepository = huggingFaceRepository;
+        this.isInitialized = false;
     }
 
     async init() {
-        this.hf = await initHuggingFaceRepository();
+        if (this.isInitialized) {
+            console.warn('ImageRepository is already initialized');
+            return;
+        }
+
+        try {
+            this.hfClient = this.huggingFaceRepository.getClient();
+            this.isInitialized = true;
+            console.log('ImageRepository initialized successfully');
+        } catch (error) {
+            console.error(
+                'Failed to initialize Hugging Face repository:',
+                error
+            );
+            throw new Error('Initialization error: ' + error.message);
+        }
     }
 
     async performTextToImage(text) {
-        const imageBlob = await this.hf.textToImage({
-            model: 'ZB-Tech/Text-to-Image',
-            inputs: text,
-        });
-
-        console.log('image:', typeof imageBlob);
-
-        if (imageBlob instanceof Blob) {
-            const base64Image = await blobToBase64(imageBlob);
-            return base64Image;
-        } else if (typeof imageBlob === 'string') {
-            const base64Image = Buffer.from(imageBlob).toString('base64');
-            return base64Image;
-        } else {
-            throw new Error('Unexpected image result format');
+        if (!this.isInitialized) {
+            throw new Error(
+                'ImageRepository is not initialized. Call init() first.'
+            );
         }
+
+        if (!text || typeof text !== 'string') {
+            throw new Error('Invalid input: text must be a non-empty string');
+        }
+
+        try {
+            console.log('Generating image for text:', text);
+            const imageBlob = await this.hfClient.textToImage({
+                model: 'ZB-Tech/Text-to-Image',
+                inputs: text,
+            });
+
+            console.info('Image generation completed successfully');
+
+            if (imageBlob instanceof Blob) {
+                return this.blobToBase64(imageBlob);
+            } else if (typeof imageBlob === 'string') {
+                return Buffer.from(imageBlob).toString('base64');
+            } else {
+                throw new Error('Unexpected image result format');
+            }
+        } catch (error) {
+            console.error('Error during text-to-image generation:', error);
+            throw new Error('Image generation failed: ' + error.message);
+        }
+    }
+
+    async blobToBase64(blob) {
+        if (!(blob instanceof Blob)) {
+            throw new Error('Invalid input: expected Blob instance');
+        }
+
+        try {
+            const arrayBuffer = await blob.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            return buffer.toString('base64');
+        } catch (error) {
+            console.error('Error converting Blob to Base64:', error);
+            throw new Error(
+                'Blob to Base64 conversion failed: ' + error.message
+            );
+        }
+    }
+
+    // Additional utility methods could be added here
+
+    isReady() {
+        return this.isInitialized;
+    }
+
+    reset() {
+        this.hfClient = null;
+        this.isInitialized = false;
+        console.log('ImageRepository reset');
     }
 }
 
-// Helper function to convert Blob to Base64 using ArrayBuffer and Buffer
-async function blobToBase64(blob) {
-    const arrayBuffer = await blob.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    return buffer.toString('base64');
-}
-
-export default new ImageRepository();
+// Create and export a default instance
+const defaultHuggingFaceRepository = new HuggingFaceRepository(
+    process.env.HF_KEY || ''
+);
+export default new ImageRepository(defaultHuggingFaceRepository);
