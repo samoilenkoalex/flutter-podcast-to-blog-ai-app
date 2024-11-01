@@ -19,10 +19,13 @@
 - Huggingface chat completion with HuggingFaceH4/zephyr-7b-beta model
 
 ## Preview
-![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/search.gif)
-![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/image_&_text.gif)
-![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/summry&audio.gif)
-![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/chat.gif)
+<img src="https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/search.gif" alt="Search Preview" width="300" height="600">
+
+<img src="https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/image_&_text.gif" alt="Image & Text Preview" width="300" height="600">
+
+<img src="https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/summry&audio.gif" alt="Summary & Audio Preview" width="300" height="600">
+
+<img src="https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/chat.gif" alt="Chat Preview" width="300" height="600">
 
 ## Installing:
 **1. Clone this repo to your folder:**
