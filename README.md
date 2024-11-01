@@ -19,25 +19,15 @@
 - Huggingface chat completion with HuggingFaceH4/zephyr-7b-beta model
 
 ## Preview
-<p align="center">
+
+  <img src="https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/search.gif" alt="Preview" width="400"/>
+  
+  <img src="https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/image_&_text.gif" alt="Preview" width="400"/>
+  
+  <img src="https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/summry&audio.gif" alt="Preview" width="400"/>
+  
   <img src="https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/chat.gif" alt="Preview" width="400"/>
-</p>
-<p align="center">
-  <img src="https://github.com/extrawest/Uni-Summarizer/blob/main/demo_files/youtube-summarize.gif" alt="Preview" width="400"/>
-</p>
 
-<img src="https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/search.gif" alt="Search Preview" width="300" height="600">
-
-<img src="https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/image_&_text.gif" alt="Image & Text Preview" width="300" height="600">
-
-<img src="https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/summry&audio.gif" alt="Summary & Audio Preview" width="300" height="600">
-
-<img src="https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/chat.gif" alt="Chat Preview" width="300" height="600">
-
-![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/search.gif)
-![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/image_&_text.gif)
-![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/summry&audio.gif)
-![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/chat.gif)
 
 ## Installing:
 **1. Clone this repo to your folder:**
