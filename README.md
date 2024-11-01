@@ -20,7 +20,7 @@
 
 ## Preview
 <p align="center">
-  <img src="https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/search.gif" alt="Preview" width="400"/>
+  <img src="https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/chat.gif" alt="Preview" width="400"/>
 </p>
 <p align="center">
   <img src="https://github.com/extrawest/Uni-Summarizer/blob/main/demo_files/youtube-summarize.gif" alt="Preview" width="400"/>
