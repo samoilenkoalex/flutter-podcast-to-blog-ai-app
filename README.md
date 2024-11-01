@@ -18,6 +18,12 @@
 - Huggingface speech-to-text with openai/whisper-large-v3-turbo model
 - Huggingface chat completion with HuggingFaceH4/zephyr-7b-beta model
 
+## Preview
+![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/search.gif)
+![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/image_&_text.gif)
+![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/summry&audio.gif)
+![Preview](https://github.com/extrawest/flutter-podcast-to-blog-ai-app/blob/main/demo/chat.gif)
+
 ## Installing:
 **1. Clone this repo to your folder:**
 
@@ -58,12 +64,6 @@ PORT = YOUR_PORT_NUMBER
 Go to app/lib/services/api_service.dart and change the baseUrl to your server path
 
 Now you can use the app
-
-## Preview
-![Preview](https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/search.gif)
-![Preview](https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/image_&_text.gif)
-![Preview](https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/summry&audio.gif)
-![Preview](https://gitlab.extrawest.com/i-training/flutter/podcast-to-blog-ai-app/-/blob/flutter_ui/demo/chat.gif)
 
 
 Created by Oleksandr Samoilenko
