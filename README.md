@@ -74,8 +74,6 @@ Go to app/lib/services/api_service.dart and change the baseUrl to your server pa
 Now you can use the app
 
 
-Created by Oleksandr Samoilenko
-
-[Extrawest.com](https://www.extrawest.com), 2024
+Created by Oleksandr Samoilenko, 2024
 
 
